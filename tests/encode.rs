@@ -5,13 +5,13 @@ const FILLER: [u8; 512] = [b'~'; 512];
 #[test]
 fn test_encode() {
     for &(val, s) in cases::TEST_CASES.iter() {
-        assert_eq!(s, bs58::encode(val).into_string());
+        assert_eq!(s, bs63::encode(val).into_string());
 
-        assert_eq!(s.as_bytes(), &*bs58::encode(val).into_vec());
+        assert_eq!(s.as_bytes(), &*bs63::encode(val).into_vec());
 
         {
             let mut bytes = FILLER;
-            assert_eq!(Ok(s.len()), bs58::encode(val).into(&mut bytes[..]));
+            assert_eq!(Ok(s.len()), bs63::encode(val).into(&mut bytes[..]));
             assert_eq!(s.as_bytes(), &bytes[..s.len()]);
             assert_eq!(&FILLER[s.len()..], &bytes[s.len()..]);
         }
@@ -22,7 +22,7 @@ fn test_encode() {
                 bytes[(s.len() - 1)..=s.len()].copy_from_slice("Ę".as_bytes());
             }
             let string = core::str::from_utf8_mut(&mut bytes[..]).unwrap();
-            assert_eq!(Ok(s.len()), bs58::encode(val).into(string));
+            assert_eq!(Ok(s.len()), bs63::encode(val).into(string));
             assert_eq!(s.as_bytes(), &bytes[..s.len()]);
             if !s.is_empty() {
                 assert_eq!(0, bytes[s.len()]);
@@ -36,15 +36,15 @@ fn test_encode() {
 #[cfg(feature = "check")]
 fn test_encode_check() {
     for &(val, s) in cases::CHECK_TEST_CASES.iter() {
-        assert_eq!(s, bs58::encode(val).with_check().into_string());
+        assert_eq!(s, bs63::encode(val).with_check().into_string());
 
-        assert_eq!(s.as_bytes(), &*bs58::encode(val).with_check().into_vec());
+        assert_eq!(s.as_bytes(), &*bs63::encode(val).with_check().into_vec());
 
         {
             let mut bytes = FILLER;
             assert_eq!(
                 Ok(s.len()),
-                bs58::encode(val).with_check().into(&mut bytes[..])
+                bs63::encode(val).with_check().into(&mut bytes[..])
             );
             assert_eq!(s.as_bytes(), &bytes[..s.len()]);
             assert_eq!(&FILLER[s.len()..], &bytes[s.len()..]);
@@ -52,7 +52,7 @@ fn test_encode_check() {
             if !val.is_empty() {
                 assert_eq!(
                     Ok(s.len()),
-                    bs58::encode(&val[1..])
+                    bs63::encode(&val[1..])
                         .with_check_version(val[0])
                         .into(&mut bytes[..])
                 );
@@ -67,7 +67,7 @@ fn test_encode_check() {
                 bytes[(s.len() - 1)..=s.len()].copy_from_slice("Ę".as_bytes());
             }
             let string = core::str::from_utf8_mut(&mut bytes[..]).unwrap();
-            assert_eq!(Ok(s.len()), bs58::encode(val).with_check().into(string));
+            assert_eq!(Ok(s.len()), bs63::encode(val).with_check().into(string));
             assert_eq!(s.as_bytes(), &bytes[..s.len()]);
             if !s.is_empty() {
                 assert_eq!(0, bytes[s.len()]);
@@ -80,6 +80,6 @@ fn test_encode_check() {
 #[test]
 fn append() {
     let mut buf = "hello world".to_string();
-    bs58::encode(&[92]).into(&mut buf).unwrap();
-    assert_eq!("hello world2b", buf.as_str());
+    bs63::encode(&[92]).into(&mut buf).unwrap();
+    assert_eq!("hello world1T", buf.as_str());
 }

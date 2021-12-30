@@ -1,4 +1,4 @@
-//! Functions for encoding into Base58 encoded strings.
+//! Functions for encoding into Base63 encoded strings.
 
 use core::fmt;
 
@@ -11,7 +11,7 @@ use crate::CHECKSUM_LEN;
 
 use crate::Alphabet;
 
-/// A builder for setting up the alphabet and output of a base58 encode.
+/// A builder for setting up the alphabet and output of a base63 encode.
 #[allow(missing_debug_implementations)]
 pub struct EncodeBuilder<'a, I: AsRef<[u8]>> {
     input: I,
@@ -19,10 +19,10 @@ pub struct EncodeBuilder<'a, I: AsRef<[u8]>> {
     check: Check,
 }
 
-/// A specialized [`Result`](core::result::Result) type for [`bs58::encode`](module@crate::encode)
+/// A specialized [`Result`](core::result::Result) type for [`bs63::encode`](module@crate::encode)
 pub type Result<T> = core::result::Result<T, Error>;
 
-/// Errors that could occur when encoding a Base58 encoded string.
+/// Errors that could occur when encoding a Base63 encoded string.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum Error {
@@ -137,7 +137,7 @@ impl EncodeTarget for str {
 
 impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     /// Setup encoder for the given string using the given alphabet.
-    /// Preferably use [`bs58::encode`](crate::encode()) instead of this
+    /// Preferably use [`bs63::encode`](crate::encode()) instead of this
     /// directly.
     pub fn new(input: I, alpha: &'a Alphabet) -> EncodeBuilder<'a, I> {
         EncodeBuilder {
@@ -164,18 +164,18 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     /// let input = [0x60, 0x65, 0xe7, 0x9b, 0xba, 0x2f, 0x78];
     /// assert_eq!(
     ///     "he11owor1d",
-    ///     bs58::encode(input)
-    ///         .with_alphabet(bs58::Alphabet::RIPPLE)
+    ///     bs63::encode(input)
+    ///         .with_alphabet(bs63::Alphabet::RIPPLE)
     ///         .into_string());
     /// ```
     pub fn with_alphabet(self, alpha: &'a Alphabet) -> EncodeBuilder<'a, I> {
         EncodeBuilder { alpha, ..self }
     }
 
-    /// Include checksum calculated using the [Base58Check][] algorithm when
+    /// Include checksum calculated using the [Base63Check][] algorithm when
     /// encoding.
     ///
-    /// [Base58Check]: https://en.bitcoin.it/wiki/Base58Check_encoding
+    /// [Base63Check]: https://en.bitcoin.it/wiki/Base63Check_encoding
     ///
     /// # Examples
     ///
@@ -183,7 +183,7 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     /// let input = [0x60, 0x65, 0xe7, 0x9b, 0xba, 0x2f, 0x78];
     /// assert_eq!(
     ///     "QuT57JNzzWTu7mW",
-    ///     bs58::encode(input)
+    ///     bs63::encode(input)
     ///         .with_check()
     ///         .into_string());
     /// ```
@@ -194,10 +194,10 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
         EncodeBuilder { check, ..self }
     }
 
-    /// Include checksum calculated using the [Base58Check][] algorithm and
+    /// Include checksum calculated using the [Base63Check][] algorithm and
     /// version when encoding.
     ///
-    /// [Base58Check]: https://en.bitcoin.it/wiki/Base58Check_encoding
+    /// [Base63Check]: https://en.bitcoin.it/wiki/Base63Check_encoding
     ///
     /// # Examples
     ///
@@ -205,7 +205,7 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     /// let input = [0x60, 0x65, 0xe7, 0x9b, 0xba, 0x2f, 0x78];
     /// assert_eq!(
     ///     "oP8aA4HEEyFxxYhp",
-    ///     bs58::encode(input)
+    ///     bs63::encode(input)
     ///         .with_check_version(42)
     ///         .into_string());
     /// ```
@@ -221,8 +221,8 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     /// # Examples
     ///
     /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58];
-    /// assert_eq!("he11owor1d", bs58::encode(input).into_string());
+    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
+    /// assert_eq!("he11owor1d", bs63::encode(input).into_string());
     /// ```
     #[cfg(feature = "alloc")]
     #[cfg_attr(docsrs, doc(cfg(any(feature = "alloc", feature = "std"))))]
@@ -237,8 +237,8 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     /// # Examples
     ///
     /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58];
-    /// assert_eq!(b"he11owor1d", &*bs58::encode(input).into_vec());
+    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
+    /// assert_eq!(b"he11owor1d", &*bs63::encode(input).into_vec());
     /// ```
     #[cfg(feature = "alloc")]
     #[cfg_attr(docsrs, doc(cfg(any(feature = "alloc", feature = "std"))))]
@@ -259,7 +259,7 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     /// up to 3 null bytes may be written to an `&mut str` to overwrite remaining characters of a
     /// partially overwritten multi-byte character.
     ///
-    /// See the documentation for [`bs58::encode`](crate::encode()) for an
+    /// See the documentation for [`bs63::encode`](crate::encode()) for an
     /// explanation of the errors that may occur.
     ///
     /// # Examples
@@ -267,51 +267,51 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     /// ## `Vec<u8>`
     ///
     /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58];
+    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
     /// let mut output = b"goodbye world ".to_vec();
-    /// bs58::encode(input).into(&mut output)?;
+    /// bs63::encode(input).into(&mut output)?;
     /// assert_eq!(b"goodbye world he11owor1d", output.as_slice());
-    /// # Ok::<(), bs58::encode::Error>(())
+    /// # Ok::<(), bs63::encode::Error>(())
     /// ```
     ///
     /// ## `&mut [u8]`
     ///
     /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58];
+    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
     /// let mut output = b"goodbye world".to_owned();
-    /// bs58::encode(input).into(&mut output[..])?;
+    /// bs63::encode(input).into(&mut output[..])?;
     /// assert_eq!(b"he11owor1drld", output.as_ref());
-    /// # Ok::<(), bs58::encode::Error>(())
+    /// # Ok::<(), bs63::encode::Error>(())
     /// ```
     ///
     /// ## `String`
     ///
     /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58];
+    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
     /// let mut output = "goodbye world ".to_owned();
-    /// bs58::encode(input).into(&mut output)?;
+    /// bs63::encode(input).into(&mut output)?;
     /// assert_eq!("goodbye world he11owor1d", output);
-    /// # Ok::<(), bs58::encode::Error>(())
+    /// # Ok::<(), bs63::encode::Error>(())
     /// ```
     ///
     /// ## `&mut str`
     ///
     /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58];
+    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
     /// let mut output = "goodbye world".to_owned();
-    /// bs58::encode(input).into(output.as_mut_str())?;
+    /// bs63::encode(input).into(output.as_mut_str())?;
     /// assert_eq!("he11owor1drld", output);
-    /// # Ok::<(), bs58::encode::Error>(())
+    /// # Ok::<(), bs63::encode::Error>(())
     /// ```
     ///
     /// ### Clearing partially overwritten characters
     ///
     /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58];
+    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
     /// let mut output = "goodbye w®ld".to_owned();
-    /// bs58::encode(input).into(output.as_mut_str())?;
+    /// bs63::encode(input).into(output.as_mut_str())?;
     /// assert_eq!("he11owor1d\0ld", output);
-    /// # Ok::<(), bs58::encode::Error>(())
+    /// # Ok::<(), bs63::encode::Error>(())
     /// ```
     pub fn into(self, mut output: impl EncodeTarget) -> Result<usize> {
         match self.check {
@@ -341,16 +341,16 @@ where
         let mut carry = val as usize;
         for byte in &mut output[..index] {
             carry += (*byte as usize) << 8;
-            *byte = (carry % 58) as u8;
-            carry /= 58;
+            *byte = (carry % 63) as u8;
+            carry /= 63;
         }
         while carry > 0 {
             if index == output.len() {
                 return Err(Error::BufferTooSmall);
             }
-            output[index] = (carry % 58) as u8;
+            output[index] = (carry % 63) as u8;
             index += 1;
-            carry /= 58;
+            carry /= 63;
         }
     }
 
@@ -404,7 +404,7 @@ impl fmt::Display for Error {
         match *self {
             Error::BufferTooSmall => write!(
                 f,
-                "buffer provided to encode base58 string into was too small"
+                "buffer provided to encode base63 string into was too small"
             ),
         }
     }

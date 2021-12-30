@@ -1,11 +1,11 @@
 [package]
-name = "bs58"
+name = "bs63"
 version = "0.4.0"
 authors = ["Wim Looman <wim@nemo157.com>"]
-description = "Another Base58 codec implementation."
-repository = "https://github.com/mycorrhiza/bs58-rs"
+description = "A Base63 codec implementation."
+repository = "https://github.com/zubcoin/bs63"
 readme = "README.md"
-keywords = ["base58"]
+keywords = ["base63"]
 license = "MIT/Apache-2.0"
 edition = "2018"
 

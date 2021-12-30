@@ -1,4 +1,4 @@
-//! Functions for decoding Base58 encoded strings.
+//! Functions for decoding Base63 encoded strings.
 
 use core::fmt;
 
@@ -11,9 +11,9 @@ use crate::CHECKSUM_LEN;
 
 use crate::Alphabet;
 
-/// A builder for setting up the alphabet and output of a base58 decode.
+/// A builder for setting up the alphabet and output of a base63 decode.
 ///
-/// See the documentation for [`bs58::decode`](crate::decode()) for a more
+/// See the documentation for [`bs63::decode`](crate::decode()) for a more
 /// high level view of how to use this.
 #[allow(missing_debug_implementations)]
 pub struct DecodeBuilder<'a, I: AsRef<[u8]>> {
@@ -22,17 +22,17 @@ pub struct DecodeBuilder<'a, I: AsRef<[u8]>> {
     check: Check,
 }
 
-/// A specialized [`Result`](core::result::Result) type for [`bs58::decode`](module@crate::decode)
+/// A specialized [`Result`](core::result::Result) type for [`bs63::decode`](module@crate::decode)
 pub type Result<T> = core::result::Result<T, Error>;
 
-/// Errors that could occur when decoding a Base58 encoded string.
+/// Errors that could occur when decoding a Base63 encoded string.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum Error {
     /// The output buffer was too small to contain the entire input.
     BufferTooSmall,
 
-    /// The input contained a character that was not part of the current Base58
+    /// The input contained a character that was not part of the current Base63
     /// alphabet.
     InvalidCharacter {
         /// The unexpected character.
@@ -42,7 +42,7 @@ pub enum Error {
     },
 
     /// The input contained a multi-byte (or non-utf8) character which is
-    /// unsupported by this Base58 decoder.
+    /// unsupported by this Base63 decoder.
     NonAsciiCharacter {
         /// The (byte) index in the input string the start of the character was
         /// at.
@@ -138,7 +138,7 @@ impl<const N: usize> DecodeTarget for [u8; N] {
 
 impl<'a, I: AsRef<[u8]>> DecodeBuilder<'a, I> {
     /// Setup decoder for the given string using the given alphabet.
-    /// Preferably use [`bs58::decode`](crate::decode()) instead of this directly.
+    /// Preferably use [`bs63::decode`](crate::decode()) instead of this directly.
     pub fn new(input: I, alpha: &'a Alphabet) -> DecodeBuilder<'a, I> {
         DecodeBuilder {
             input,
@@ -163,32 +163,32 @@ impl<'a, I: AsRef<[u8]>> DecodeBuilder<'a, I> {
     /// ```rust
     /// assert_eq!(
     ///     vec![0x60, 0x65, 0xe7, 0x9b, 0xba, 0x2f, 0x78],
-    ///     bs58::decode("he11owor1d")
-    ///         .with_alphabet(bs58::Alphabet::RIPPLE)
+    ///     bs63::decode("he11owor1d")
+    ///         .with_alphabet(bs63::Alphabet::DEFAULT)
     ///         .into_vec()?);
-    /// # Ok::<(), bs58::decode::Error>(())
+    /// # Ok::<(), bs63::decode::Error>(())
     /// ```
     pub fn with_alphabet(self, alpha: &'a Alphabet) -> DecodeBuilder<'a, I> {
         DecodeBuilder { alpha, ..self }
     }
 
-    /// Expect and check checksum using the [Base58Check][] algorithm when
+    /// Expect and check checksum using the [Base63Check][] algorithm when
     /// decoding.
     ///
     /// Optional parameter for version byte. If provided, the version byte will
     /// be used in verification.
     ///
-    /// [Base58Check]: https://en.bitcoin.it/wiki/Base58Check_encoding
+    /// [Base63Check]: https://en.bitcoin.it/wiki/Base63Check_encoding
     ///
     /// # Examples
     ///
     /// ```rust
     /// assert_eq!(
     ///     vec![0x2d, 0x31],
-    ///     bs58::decode("PWEu9GGN")
+    ///     bs63::decode("PWEu9GGN")
     ///         .with_check(None)
     ///         .into_vec()?);
-    /// # Ok::<(), bs58::decode::Error>(())
+    /// # Ok::<(), bs63::decode::Error>(())
     /// ```
     #[cfg(feature = "check")]
     #[cfg_attr(docsrs, doc(cfg(feature = "check")))]
@@ -199,16 +199,16 @@ impl<'a, I: AsRef<[u8]>> DecodeBuilder<'a, I> {
 
     /// Decode into a new vector of bytes.
     ///
-    /// See the documentation for [`bs58::decode`](crate::decode()) for an
+    /// See the documentation for [`bs63::decode`](crate::decode()) for an
     /// explanation of the errors that may occur.
     ///
     /// # Examples
     ///
     /// ```rust
     /// assert_eq!(
-    ///     vec![0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58],
-    ///     bs58::decode("he11owor1d").into_vec()?);
-    /// # Ok::<(), bs58::decode::Error>(())
+    ///     vec![0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63],
+    ///     bs63::decode("he11owor1d").into_vec()?);
+    /// # Ok::<(), bs63::decode::Error>(())
     /// ```
     ///
     #[cfg(feature = "alloc")]
@@ -229,7 +229,7 @@ impl<'a, I: AsRef<[u8]>> DecodeBuilder<'a, I> {
     /// If the buffer is not resizeable bytes will be written from the beginning and bytes after
     /// the final encoded byte will not be touched.
     ///
-    /// See the documentation for [`bs58::decode`](crate::decode()) for an
+    /// See the documentation for [`bs63::decode`](crate::decode()) for an
     /// explanation of the errors that may occur.
     ///
     /// # Examples
@@ -238,18 +238,18 @@ impl<'a, I: AsRef<[u8]>> DecodeBuilder<'a, I> {
     ///
     /// ```rust
     /// let mut output = b"hello ".to_vec();
-    /// assert_eq!(5, bs58::decode("EUYUqQf").into(&mut output)?);
+    /// assert_eq!(5, bs63::decode("EUYUqQf").into(&mut output)?);
     /// assert_eq!(b"hello world", output.as_slice());
-    /// # Ok::<(), bs58::decode::Error>(())
+    /// # Ok::<(), bs63::decode::Error>(())
     /// ```
     ///
     /// ## `&mut [u8]`
     ///
     /// ```rust
     /// let mut output = b"hello ".to_owned();
-    /// assert_eq!(5, bs58::decode("EUYUqQf").into(&mut output)?);
+    /// assert_eq!(5, bs63::decode("EUYUqQf").into(&mut output)?);
     /// assert_eq!(b"world ", output.as_ref());
-    /// # Ok::<(), bs58::decode::Error>(())
+    /// # Ok::<(), bs63::decode::Error>(())
     /// ```
     pub fn into(self, mut output: impl DecodeTarget) -> Result<usize> {
         let max_decoded_len = self.input.as_ref().len();
@@ -283,7 +283,7 @@ fn decode_into(input: &[u8], output: &mut [u8], alpha: &Alphabet) -> Result<usiz
         }
 
         for byte in &mut output[..index] {
-            val += (*byte as usize) * 58;
+            val += (*byte as usize) * 63;
             *byte = (val & 0xFF) as u8;
             val >>= 8;
         }
@@ -361,7 +361,7 @@ impl fmt::Display for Error {
         match *self {
             Error::BufferTooSmall => write!(
                 f,
-                "buffer provided to decode base58 encoded string into was too small"
+                "buffer provided to decode base63 encoded string into was too small"
             ),
             Error::InvalidCharacter { character, index } => write!(
                 f,
