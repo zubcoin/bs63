@@ -34,8 +34,12 @@ pub enum Error {
 
 impl Alphabet {
     /// DEFAULT Base63, as used by ZubCoin
-    pub const DEFAULT: &'static Self =
+    pub const ZUBCOIN: &'static Self =
         &Self::new_unwrap(b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_");
+
+    /// The default alphabet used if none is given. Currently is the
+    /// [`ZUBCOIN`](Self::ZUBCOIN) alphabet.
+    pub const DEFAULT: &'static Self = Self::ZUBCOIN;
 
     /// Create prepared alphabet, checks that the alphabet is pure ASCII and that there are no
     /// duplicate characters, which would result in inconsistent encoding/decoding

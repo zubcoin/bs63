@@ -43,31 +43,18 @@
 //! ## Basic example
 //!
 //! ```rust
-//! let decoded = bs58::decode("he11owor1d").into_vec()?;
-//! let encoded = bs58::encode(decoded).into_string();
+//! let decoded = bs63::decode("he11owor1d").into_vec()?;
+//! let encoded = bs63::encode(decoded).into_string();
 //! assert_eq!("he11owor1d", encoded);
-//! # Ok::<(), bs58::decode::Error>(())
-//! ```
-//!
-//! ## Changing the alphabet
-//!
-//! ```rust
-//! let decoded = bs58::decode("he11owor1d")
-//!     .with_alphabet(bs58::Alphabet::RIPPLE)
-//!     .into_vec()?;
-//! let encoded = bs58::encode(decoded)
-//!     .with_alphabet(bs58::Alphabet::FLICKR)
-//!     .into_string();
-//! assert_eq!("4DSSNaN1SC", encoded);
-//! # Ok::<(), bs58::decode::Error>(())
+//! # Ok::<(), bs63::decode::Error>(())
 //! ```
 //!
 //! ## Decoding into an existing buffer
 //!
 //! ```rust
 //! let (mut decoded, mut encoded) = ([0xFF; 8], String::with_capacity(10));
-//! bs58::decode("he11owor1d").into(&mut decoded)?;
-//! bs58::encode(decoded).into(&mut encoded)?;
+//! bs63::decode("he11owor1d").into(&mut decoded)?;
+//! bs63::encode(decoded).into(&mut encoded)?;
 //! assert_eq!("he11owor1d", encoded);
 //! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```
@@ -104,30 +91,19 @@ enum Check {
 /// ```rust
 /// assert_eq!(
 ///     vec![0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58],
-///     bs58::decode("he11owor1d").into_vec()?);
-/// # Ok::<(), bs58::decode::Error>(())
-/// ```
-///
-/// ## Changing the alphabet
-///
-/// ```rust
-/// assert_eq!(
-///     vec![0x60, 0x65, 0xe7, 0x9b, 0xba, 0x2f, 0x78],
-///     bs58::decode("he11owor1d")
-///         .with_alphabet(bs58::Alphabet::RIPPLE)
-///         .into_vec()?);
-/// # Ok::<(), bs58::decode::Error>(())
+///     bs63::decode("he11owor1d").into_vec()?);
+/// # Ok::<(), bs63::decode::Error>(())
 /// ```
 ///
 /// ## Decoding into an existing buffer
 ///
 /// ```rust
 /// let mut output = [0xFF; 10];
-/// assert_eq!(8, bs58::decode("he11owor1d").into(&mut output)?);
+/// assert_eq!(8, bs63::decode("he11owor1d").into(&mut output)?);
 /// assert_eq!(
 ///     [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58, 0xFF, 0xFF],
 ///     output);
-/// # Ok::<(), bs58::decode::Error>(())
+/// # Ok::<(), bs63::decode::Error>(())
 /// ```
 ///
 /// ## Errors
@@ -136,16 +112,16 @@ enum Check {
 ///
 /// ```rust
 /// assert_eq!(
-///     bs58::decode::Error::InvalidCharacter { character: 'l', index: 2 },
-///     bs58::decode("hello world").into_vec().unwrap_err());
+///     bs63::decode::Error::InvalidCharacter { character: 'l', index: 2 },
+///     bs63::decode("hello world").into_vec().unwrap_err());
 /// ```
 ///
 /// ### Non-ASCII Character
 ///
 /// ```rust
 /// assert_eq!(
-///     bs58::decode::Error::NonAsciiCharacter { index: 5 },
-///     bs58::decode("he11o🇳🇿").into_vec().unwrap_err());
+///     bs63::decode::Error::NonAsciiCharacter { index: 5 },
+///     bs63::decode("he11o🇳🇿").into_vec().unwrap_err());
 /// ```
 ///
 /// ### Too Small Buffer
@@ -157,8 +133,8 @@ enum Check {
 /// ```rust
 /// let mut output = [0; 7];
 /// assert_eq!(
-///     bs58::decode::Error::BufferTooSmall,
-///     bs58::decode("he11owor1d").into(&mut output).unwrap_err());
+///     bs63::decode::Error::BufferTooSmall,
+///     bs63::decode("he11owor1d").into(&mut output).unwrap_err());
 /// ```
 pub fn decode<I: AsRef<[u8]>>(input: I) -> decode::DecodeBuilder<'static, I> {
     decode::DecodeBuilder::from_input(input)
@@ -172,18 +148,7 @@ pub fn decode<I: AsRef<[u8]>>(input: I) -> decode::DecodeBuilder<'static, I> {
 ///
 /// ```rust
 /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58];
-/// assert_eq!("he11owor1d", bs58::encode(input).into_string());
-/// ```
-///
-/// ## Changing the alphabet
-///
-/// ```rust
-/// let input = [0x60, 0x65, 0xe7, 0x9b, 0xba, 0x2f, 0x78];
-/// assert_eq!(
-///     "he11owor1d",
-///     bs58::encode(input)
-///         .with_alphabet(bs58::Alphabet::RIPPLE)
-///         .into_string());
+/// assert_eq!("he11owor1d", bs63::encode(input).into_string());
 /// ```
 ///
 /// ## Encoding into an existing string
@@ -191,9 +156,9 @@ pub fn decode<I: AsRef<[u8]>>(input: I) -> decode::DecodeBuilder<'static, I> {
 /// ```rust
 /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58];
 /// let mut output = "goodbye world ".to_owned();
-/// bs58::encode(input).into(&mut output)?;
+/// bs63::encode(input).into(&mut output)?;
 /// assert_eq!("goodbye world he11owor1d", output);
-/// # Ok::<(), bs58::encode::Error>(())
+/// # Ok::<(), bs63::encode::Error>(())
 /// ```
 ///
 /// ## Errors
@@ -206,8 +171,8 @@ pub fn decode<I: AsRef<[u8]>>(input: I) -> decode::DecodeBuilder<'static, I> {
 /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58];
 /// let mut output = [0; 7];
 /// assert_eq!(
-///     bs58::encode::Error::BufferTooSmall,
-///     bs58::encode(input).into(&mut output[..]).unwrap_err());
+///     bs63::encode::Error::BufferTooSmall,
+///     bs63::encode(input).into(&mut output[..]).unwrap_err());
 /// ```
 pub fn encode<I: AsRef<[u8]>>(input: I) -> encode::EncodeBuilder<'static, I> {
     encode::EncodeBuilder::from_input(input)

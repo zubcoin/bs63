@@ -165,7 +165,7 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     /// assert_eq!(
     ///     "he11owor1d",
     ///     bs63::encode(input)
-    ///         .with_alphabet(bs63::Alphabet::RIPPLE)
+    ///         .with_alphabet(bs63::Alphabet::ZUBCOIN)
     ///         .into_string());
     /// ```
     pub fn with_alphabet(self, alpha: &'a Alphabet) -> EncodeBuilder<'a, I> {
