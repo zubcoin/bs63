@@ -157,17 +157,6 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     }
 
     /// Change the alphabet that will be used for encoding.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let input = [0x60, 0x65, 0xe7, 0x9b, 0xba, 0x2f, 0x78];
-    /// assert_eq!(
-    ///     "he11owor1d",
-    ///     bs63::encode(input)
-    ///         .with_alphabet(bs63::Alphabet::ZUBCOIN)
-    ///         .into_string());
-    /// ```
     pub fn with_alphabet(self, alpha: &'a Alphabet) -> EncodeBuilder<'a, I> {
         EncodeBuilder { alpha, ..self }
     }
@@ -176,17 +165,6 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     /// encoding.
     ///
     /// [Base63Check]: https://en.bitcoin.it/wiki/Base63Check_encoding
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let input = [0x60, 0x65, 0xe7, 0x9b, 0xba, 0x2f, 0x78];
-    /// assert_eq!(
-    ///     "QuT57JNzzWTu7mW",
-    ///     bs63::encode(input)
-    ///         .with_check()
-    ///         .into_string());
-    /// ```
     #[cfg(feature = "check")]
     #[cfg_attr(docsrs, doc(cfg(feature = "check")))]
     pub fn with_check(self) -> EncodeBuilder<'a, I> {
@@ -198,17 +176,6 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     /// version when encoding.
     ///
     /// [Base63Check]: https://en.bitcoin.it/wiki/Base63Check_encoding
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let input = [0x60, 0x65, 0xe7, 0x9b, 0xba, 0x2f, 0x78];
-    /// assert_eq!(
-    ///     "oP8aA4HEEyFxxYhp",
-    ///     bs63::encode(input)
-    ///         .with_check_version(42)
-    ///         .into_string());
-    /// ```
     #[cfg(feature = "check")]
     #[cfg_attr(docsrs, doc(cfg(feature = "check")))]
     pub fn with_check_version(self, expected_ver: u8) -> EncodeBuilder<'a, I> {
@@ -217,13 +184,6 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     }
 
     /// Encode into a new owned string.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
-    /// assert_eq!("he11owor1d", bs63::encode(input).into_string());
-    /// ```
     #[cfg(feature = "alloc")]
     #[cfg_attr(docsrs, doc(cfg(any(feature = "alloc", feature = "std"))))]
     pub fn into_string(self) -> String {
@@ -233,13 +193,6 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     }
 
     /// Encode into a new owned vector.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
-    /// assert_eq!(b"he11owor1d", &*bs63::encode(input).into_vec());
-    /// ```
     #[cfg(feature = "alloc")]
     #[cfg_attr(docsrs, doc(cfg(any(feature = "alloc", feature = "std"))))]
     pub fn into_vec(self) -> Vec<u8> {
@@ -261,58 +214,6 @@ impl<'a, I: AsRef<[u8]>> EncodeBuilder<'a, I> {
     ///
     /// See the documentation for [`bs63::encode`](crate::encode()) for an
     /// explanation of the errors that may occur.
-    ///
-    /// # Examples
-    ///
-    /// ## `Vec<u8>`
-    ///
-    /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
-    /// let mut output = b"goodbye world ".to_vec();
-    /// bs63::encode(input).into(&mut output)?;
-    /// assert_eq!(b"goodbye world he11owor1d", output.as_slice());
-    /// # Ok::<(), bs63::encode::Error>(())
-    /// ```
-    ///
-    /// ## `&mut [u8]`
-    ///
-    /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
-    /// let mut output = b"goodbye world".to_owned();
-    /// bs63::encode(input).into(&mut output[..])?;
-    /// assert_eq!(b"he11owor1drld", output.as_ref());
-    /// # Ok::<(), bs63::encode::Error>(())
-    /// ```
-    ///
-    /// ## `String`
-    ///
-    /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
-    /// let mut output = "goodbye world ".to_owned();
-    /// bs63::encode(input).into(&mut output)?;
-    /// assert_eq!("goodbye world he11owor1d", output);
-    /// # Ok::<(), bs63::encode::Error>(())
-    /// ```
-    ///
-    /// ## `&mut str`
-    ///
-    /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
-    /// let mut output = "goodbye world".to_owned();
-    /// bs63::encode(input).into(output.as_mut_str())?;
-    /// assert_eq!("he11owor1drld", output);
-    /// # Ok::<(), bs63::encode::Error>(())
-    /// ```
-    ///
-    /// ### Clearing partially overwritten characters
-    ///
-    /// ```rust
-    /// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63];
-    /// let mut output = "goodbye w®ld".to_owned();
-    /// bs63::encode(input).into(output.as_mut_str())?;
-    /// assert_eq!("he11owor1d\0ld", output);
-    /// # Ok::<(), bs63::encode::Error>(())
-    /// ```
     pub fn into(self, mut output: impl EncodeTarget) -> Result<usize> {
         match self.check {
             Check::Disabled => {

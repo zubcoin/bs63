@@ -1,6 +1,6 @@
 [package]
 name = "bs63"
-version = "0.4.0"
+version = "0.4.2"
 authors = ["Wim Looman <wim@nemo157.com>"]
 description = "A Base63 codec implementation."
 repository = "https://github.com/zubcoin/bs63"

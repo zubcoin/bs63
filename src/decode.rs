@@ -157,17 +157,6 @@ impl<'a, I: AsRef<[u8]>> DecodeBuilder<'a, I> {
     }
 
     /// Change the alphabet that will be used for decoding.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// assert_eq!(
-    ///     vec![0x60, 0x65, 0xe7, 0x9b, 0xba, 0x2f, 0x78],
-    ///     bs63::decode("he11owor1d")
-    ///         .with_alphabet(bs63::Alphabet::DEFAULT)
-    ///         .into_vec()?);
-    /// # Ok::<(), bs63::decode::Error>(())
-    /// ```
     pub fn with_alphabet(self, alpha: &'a Alphabet) -> DecodeBuilder<'a, I> {
         DecodeBuilder { alpha, ..self }
     }
@@ -179,17 +168,6 @@ impl<'a, I: AsRef<[u8]>> DecodeBuilder<'a, I> {
     /// be used in verification.
     ///
     /// [Base63Check]: https://en.bitcoin.it/wiki/Base63Check_encoding
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// assert_eq!(
-    ///     vec![0x2d, 0x31],
-    ///     bs63::decode("PWEu9GGN")
-    ///         .with_check(None)
-    ///         .into_vec()?);
-    /// # Ok::<(), bs63::decode::Error>(())
-    /// ```
     #[cfg(feature = "check")]
     #[cfg_attr(docsrs, doc(cfg(feature = "check")))]
     pub fn with_check(self, expected_ver: Option<u8>) -> DecodeBuilder<'a, I> {
@@ -201,16 +179,6 @@ impl<'a, I: AsRef<[u8]>> DecodeBuilder<'a, I> {
     ///
     /// See the documentation for [`bs63::decode`](crate::decode()) for an
     /// explanation of the errors that may occur.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// assert_eq!(
-    ///     vec![0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x63],
-    ///     bs63::decode("he11owor1d").into_vec()?);
-    /// # Ok::<(), bs63::decode::Error>(())
-    /// ```
-    ///
     #[cfg(feature = "alloc")]
     #[cfg_attr(docsrs, doc(cfg(any(feature = "alloc", feature = "std"))))]
     pub fn into_vec(self) -> Result<Vec<u8>> {
@@ -231,26 +199,6 @@ impl<'a, I: AsRef<[u8]>> DecodeBuilder<'a, I> {
     ///
     /// See the documentation for [`bs63::decode`](crate::decode()) for an
     /// explanation of the errors that may occur.
-    ///
-    /// # Examples
-    ///
-    /// ## `Vec<u8>`
-    ///
-    /// ```rust
-    /// let mut output = b"hello ".to_vec();
-    /// assert_eq!(5, bs63::decode("EUYUqQf").into(&mut output)?);
-    /// assert_eq!(b"hello world", output.as_slice());
-    /// # Ok::<(), bs63::decode::Error>(())
-    /// ```
-    ///
-    /// ## `&mut [u8]`
-    ///
-    /// ```rust
-    /// let mut output = b"hello ".to_owned();
-    /// assert_eq!(5, bs63::decode("EUYUqQf").into(&mut output)?);
-    /// assert_eq!(b"world ", output.as_ref());
-    /// # Ok::<(), bs63::decode::Error>(())
-    /// ```
     pub fn into(self, mut output: impl DecodeTarget) -> Result<usize> {
         let max_decoded_len = self.input.as_ref().len();
         match self.check {

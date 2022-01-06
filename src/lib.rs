@@ -37,27 +37,6 @@
 //!  `check` | **off**-by-default | Integrated support for [Base58Check][]
 //!
 //! [Base58Check]: https://en.bitcoin.it/wiki/Base58Check_encoding
-//!
-//! # Examples
-//!
-//! ## Basic example
-//!
-//! ```rust
-//! let decoded = bs63::decode("he11owor1d").into_vec()?;
-//! let encoded = bs63::encode(decoded).into_string();
-//! assert_eq!("he11owor1d", encoded);
-//! # Ok::<(), bs63::decode::Error>(())
-//! ```
-//!
-//! ## Decoding into an existing buffer
-//!
-//! ```rust
-//! let (mut decoded, mut encoded) = ([0xFF; 8], String::with_capacity(10));
-//! bs63::decode("he11owor1d").into(&mut decoded)?;
-//! bs63::encode(decoded).into(&mut encoded)?;
-//! assert_eq!("he11owor1d", encoded);
-//! # Ok::<(), Box<dyn std::error::Error>>(())
-//! ```
 
 #[cfg(feature = "std")]
 extern crate std;
@@ -83,97 +62,11 @@ enum Check {
 }
 
 /// Setup decoder for the given string using the [default alphabet][Alphabet::DEFAULT].
-///
-/// # Examples
-///
-/// ## Basic example
-///
-/// ```rust
-/// assert_eq!(
-///     vec![0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58],
-///     bs63::decode("he11owor1d").into_vec()?);
-/// # Ok::<(), bs63::decode::Error>(())
-/// ```
-///
-/// ## Decoding into an existing buffer
-///
-/// ```rust
-/// let mut output = [0xFF; 10];
-/// assert_eq!(8, bs63::decode("he11owor1d").into(&mut output)?);
-/// assert_eq!(
-///     [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58, 0xFF, 0xFF],
-///     output);
-/// # Ok::<(), bs63::decode::Error>(())
-/// ```
-///
-/// ## Errors
-///
-/// ### Invalid Character
-///
-/// ```rust
-/// assert_eq!(
-///     bs63::decode::Error::InvalidCharacter { character: 'l', index: 2 },
-///     bs63::decode("hello world").into_vec().unwrap_err());
-/// ```
-///
-/// ### Non-ASCII Character
-///
-/// ```rust
-/// assert_eq!(
-///     bs63::decode::Error::NonAsciiCharacter { index: 5 },
-///     bs63::decode("he11o🇳🇿").into_vec().unwrap_err());
-/// ```
-///
-/// ### Too Small Buffer
-///
-/// This error can only occur when reading into a provided buffer, when using
-/// [`into_vec()`][decode::DecodeBuilder::into_vec] a vector large enough is guaranteed to be
-/// used.
-///
-/// ```rust
-/// let mut output = [0; 7];
-/// assert_eq!(
-///     bs63::decode::Error::BufferTooSmall,
-///     bs63::decode("he11owor1d").into(&mut output).unwrap_err());
-/// ```
 pub fn decode<I: AsRef<[u8]>>(input: I) -> decode::DecodeBuilder<'static, I> {
     decode::DecodeBuilder::from_input(input)
 }
 
 /// Setup encoder for the given bytes using the [default alphabet][Alphabet::DEFAULT].
-///
-/// # Examples
-///
-/// ## Basic example
-///
-/// ```rust
-/// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58];
-/// assert_eq!("he11owor1d", bs63::encode(input).into_string());
-/// ```
-///
-/// ## Encoding into an existing string
-///
-/// ```rust
-/// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58];
-/// let mut output = "goodbye world ".to_owned();
-/// bs63::encode(input).into(&mut output)?;
-/// assert_eq!("goodbye world he11owor1d", output);
-/// # Ok::<(), bs63::encode::Error>(())
-/// ```
-///
-/// ## Errors
-///
-/// ### Too Small Buffer
-///
-/// This error can only occur when reading into an unresizeable buffer.
-///
-/// ```rust
-/// let input = [0x04, 0x30, 0x5e, 0x2b, 0x24, 0x73, 0xf0, 0x58];
-/// let mut output = [0; 7];
-/// assert_eq!(
-///     bs63::encode::Error::BufferTooSmall,
-///     bs63::encode(input).into(&mut output[..]).unwrap_err());
-/// ```
 pub fn encode<I: AsRef<[u8]>>(input: I) -> encode::EncodeBuilder<'static, I> {
     encode::EncodeBuilder::from_input(input)
 }

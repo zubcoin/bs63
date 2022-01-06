@@ -35,50 +35,13 @@ pub enum Error {
 impl Alphabet {
     /// DEFAULT Base63, as used by ZubCoin
     pub const ZUBCOIN: &'static Self =
-        &Self::new_unwrap(b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_");
+        &Self::new_unwrap(b"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz");
 
     /// The default alphabet used if none is given. Currently is the
     /// [`ZUBCOIN`](Self::ZUBCOIN) alphabet.
     pub const DEFAULT: &'static Self = Self::ZUBCOIN;
 
-    /// Create prepared alphabet, checks that the alphabet is pure ASCII and that there are no
-    /// duplicate characters, which would result in inconsistent encoding/decoding
-    ///
-    /// ```rust
-    /// let alpha = bs63::Alphabet::new(
-    ///     b" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYabcde"
-    /// )?;
-    ///
-    /// let decoded = bs63::decode("he11owor1d")
-    ///     .with_alphabet(bs63::Alphabet::DEFAULT)
-    ///     .into_vec()?;
-    /// let encoded = bs63::encode(decoded)
-    ///     .with_alphabet(&alpha)
-    ///     .into_string();
-    ///
-    /// assert_eq!("KH!!S RU!G", encoded);
-    /// # Ok::<(), Box<dyn std::error::Error>>(())
-    /// ```
-    /// ## Errors
-    ///
-    /// ### Duplicate Character
-    ///
-    /// ```rust
-    /// let alpha = b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-    /// assert_eq!(
-    ///     bs63::alphabet::Error::DuplicateCharacter { character: 'a', first: 0, second: 1 },
-    ///     bs63::Alphabet::new(alpha).unwrap_err());
-    /// ```
-    ///
-    /// ### Non-ASCII Character
-    ///
-    /// ```rust
-    /// let mut alpha = *b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-    /// alpha[1] = 255;
-    /// assert_eq!(
-    ///     bs63::alphabet::Error::NonAsciiCharacter { index: 1 },
-    ///     bs63::Alphabet::new(&alpha).unwrap_err());
-    /// ```
+    /// A new Alphabet.
     pub const fn new(base: &[u8; 63]) -> Result<Self, Error> {
         let mut encode = [0x00; 63];
         let mut decode = [0xFF; 128];
@@ -106,30 +69,6 @@ impl Alphabet {
     /// Same as [`Self::new`], but gives a panic instead of an [`Err`] on bad input.
     ///
     /// Intended to support usage in `const` context until [`Result::unwrap`] is able to be called.
-    ///
-    /// ```rust
-    /// const ALPHA: &'static bs63::Alphabet = &bs63::Alphabet::new_unwrap(
-    ///     b" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYabcde"
-    /// );
-    ///
-    /// let decoded = bs63::decode("he11owor1d")
-    ///     .with_alphabet(bs63::Alphabet::DEFAULT)
-    ///     .into_vec()?;
-    /// let encoded = bs63::encode(decoded)
-    ///     .with_alphabet(ALPHA)
-    ///     .into_string();
-    ///
-    /// assert_eq!("KH!!S RU!G", encoded);
-    /// # Ok::<(), Box<dyn std::error::Error>>(())
-    /// ```
-    ///
-    /// If your alphabet is inconsistent then this will fail to compile in a `const` context:
-    ///
-    /// ```compile_fail
-    /// const _: &'static bs63::Alphabet = &bs63::Alphabet::new_unwrap(
-    ///     b"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    /// );
-    /// ```
     pub const fn new_unwrap(base: &[u8; 63]) -> Self {
         let result = Self::new(base);
         #[allow(unconditional_panic)] // https://github.com/rust-lang/rust/issues/78803
